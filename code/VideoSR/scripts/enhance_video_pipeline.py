@@ -63,6 +63,10 @@ class VEnhancer:
         logger.info(f"input frames length: {in_f_num}")
         logger.info(f"input fps: {input_fps}")
 
+        if in_f_num == 0:
+            logger.error(f"No frames could be read from {video_path}; skipping enhancement for this video.")
+            return os.path.dirname(video_path)
+
         # load_video now guarantees a positive fps; compute how many
         # interpolated frames are needed to approach the desired target fps.
         interp_f_num = max(round(target_fps / input_fps) - 1, 0)
@@ -214,10 +218,14 @@ def main():
     else:
         raise TypeError("input must be a directory or video file!")
 
-    #resize first, please adjust resolution here if needed
+    # Resize first if possible; fall back to original resolution if ffmpeg is
+    # not available. We assume a system ffmpeg in PATH.
     for ind, file_path in enumerate(file_path_list):
         print('file_path: ', file_path)
-        os.system('/ai-video-sh/haoxiang.guo/HoloTime/ffmpeg-7.0.2-amd64-static/ffmpeg -i {} -vf scale=960:480 {}'.format(file_path, file_path.replace('.mp4', '_resize.mp4')))
+        resize_cmd = f"ffmpeg -y -i {file_path} -vf scale=960:480 {file_path.replace('.mp4', '_resize.mp4')}"
+        status = os.system(resize_cmd)
+        if status != 0:
+            logger.warning(f"ffmpeg resize failed with status {status}; using original video without resizing.")
     
     venhancer = VEnhancer(
         result_dir=save_dir,
@@ -235,7 +243,10 @@ def main():
         assert len(prompt_list) == len(file_path_list)
 
     for ind, file_path in enumerate(file_path_list):
-        file_path = file_path.replace('.mp4', '_resize.mp4')
+        resized_path = file_path.replace('.mp4', '_resize.mp4')
+        # If resize failed or ffmpeg is unavailable, fall back to the
+        # original file_path.
+        file_path = resized_path if os.path.exists(resized_path) else file_path
         logger.info(f"processing video {ind}, file_path: {file_path}")
         
         venhancer.enhance_a_video(file_path, prompt, up_scale, target_fps, noise_aug, seed=seed, suffix=args.suffix, sr_x2=args.sr_x2, total_noise_level = args.total_noise_level)
