@@ -248,7 +248,7 @@ def main(args):
     cv2.imwrite(input_image_path, panorama)
     if dist.get_rank() == 0:
         print("\n\nperform depth-anything-3...\n\n")
-        os.system(f"cd code/DA3 && python scripts/infer_panorama_da3.py --input {os.path.abspath(input_image_path)} --output {case_dir} --device {device} --maps")
+        os.system(f"cd code && python infer_panorama_da3.py --input {os.path.abspath(input_image_path)} --output {case_dir} --device {device} --maps")
         depth_path = os.path.join(case_dir, "da3","depth.exr")
         mask_path = os.path.join(case_dir, "da3", "mask.png")
         print(f"{os.path.exists(mask_path)},{mask_path}")

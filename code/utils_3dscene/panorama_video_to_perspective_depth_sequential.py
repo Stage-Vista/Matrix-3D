@@ -20,7 +20,7 @@ import trimesh
 OPTIMAL_SPLIT_FRAME_SIZE = 49
 
 
-DA3_SCRIPT_CMD = "cd code/DA3 && python scripts/infer_panorama_da3.py"
+DA3_SCRIPT_CMD = "cd code && python infer_panorama_da3.py"
 def apply_warp_fix(warped_depth, warped_mask):
     warped_depth_valid = warped_depth[warped_mask]
     warped_depth[~warped_mask] = warped_depth_valid.max() * 2.
