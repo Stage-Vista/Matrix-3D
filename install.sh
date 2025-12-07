@@ -15,6 +15,12 @@ cd code
 echo "✅ Installing DiffSynth-Studio..."
 cd DiffSynth-Studio/
 pip install -e .
+
+
+cd ../DA3/
+pip install -e . # Basic
+pip install --no-build-isolation git+https://github.com/nerfstudio-project/gsplat.git@0b4dddf04cb687367602c01196913cde6a743d70 # for gaussian head
+
 cd ..
 
 echo "✅ Installing Python dependencies..."
@@ -46,5 +52,7 @@ pip install -e git+https://github.com/CompVis/taming-transformers.git@master#egg
 pip uninstall basicsr
 pip install openai-clip
 
+pip install -e . # Basic
+pip install --no-build-isolation git+https://github.com/nerfstudio-project/gsplat.git@0b4dddf04cb687367602c01196913cde6a743d70 # for gaussian head
 
 echo "✅ All dependencies installed successfully."
