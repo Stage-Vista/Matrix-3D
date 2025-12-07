@@ -264,6 +264,10 @@ def main(args):
         # Use the DA3-provided mask as the definition of valid pixels.
         # With the current DA3 integration, this should never be empty; if it
         # is, surface an explicit error instead of silently changing semantics.
+        print(
+            f"[pano] mask_path={mask_path}, "
+            f"shape={mask.shape}, dtype={mask.dtype}, any={np.any(mask)}"
+        )
         if not np.any(mask):
             raise RuntimeError("DA3 mask is empty for this panorama; cannot derive valid depth region.")
 
