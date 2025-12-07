@@ -82,6 +82,12 @@ def load_prompt_list(file_path):
 def load_video(vid_path):
     capture = cv2.VideoCapture(vid_path)
     _fps = capture.get(cv2.CAP_PROP_FPS)
+    # Some videos (especially ones produced by custom ffmpeg commands) may
+    # report fps==0 via OpenCV even though they are valid. In that case,
+    # default to a sane value so downstream code can reason about time.
+    if _fps is None or _fps <= 0:
+        logger.warning(f"Video {vid_path} reports non-positive fps ({_fps}); defaulting to 24.0")
+        _fps = 24.0
     _total_frame_num = capture.get(cv2.CAP_PROP_FRAME_COUNT)
     pointer = 0
     frame_list = []

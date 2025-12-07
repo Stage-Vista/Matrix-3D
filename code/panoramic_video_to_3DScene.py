@@ -44,24 +44,7 @@ def main(args):
         --width {width_following} \
         --height {height_following} \
     ")
-    # cut everything into perspective images;
-
-    # Around line 53-57 in the final GS optimization command:
-    os.system(f"cd ./code/Pano_GS_Opt && python train.py -s {gs_input_dir} -m {gs_output_dir} -r 1 --use_decoupled_appearance \
-        --save_iterations 5000 10000 15000 20000 \
-        --test_iterations 5000 \
-        --sh_degree 3 \
-        --densify_from_iter 500 \
-        --densify_until_iter 3000 \
-        --iterations 20000 \
-        --eval \
-        --img_sample_interval 1 \
-        --num_views_per_view 3 \
-        --num_of_point_cloud 5000000 \
-        --device {device} \
-        --distortion_from_iter 10000 \
-        --depth_normal_from_iter 10000")
-
+    # cut everything into perspective images and run GS optimization.
     cmd_rename = f"mv {os.path.join(step1_output_dir,'geom_optim/data/mv_rgb')} {os.path.join(step1_output_dir,'geom_optim/data/mv_rgb_ori')}"
     os.system(cmd_rename)
     #cmd = f"cd StableSR && python scripts/sr_val_ddpm_text_T_vqganfin_old.py --init-img {os.path.join(step1_output_dir,'geom_optim/data/mv_rgb_ori')} --outdir {os.path.join(step1_output_dir,'geom_optim/data/mv_rgb')}"

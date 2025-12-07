@@ -62,6 +62,9 @@ class VEnhancer:
         in_f_num = len(input_frames)
         logger.info(f"input frames length: {in_f_num}")
         logger.info(f"input fps: {input_fps}")
+
+        # load_video now guarantees a positive fps; compute how many
+        # interpolated frames are needed to approach the desired target fps.
         interp_f_num = max(round(target_fps / input_fps) - 1, 0)
         interp_f_num = min(interp_f_num, 8)
         target_fps = input_fps * (interp_f_num + 1)
