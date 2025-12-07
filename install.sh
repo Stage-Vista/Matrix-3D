@@ -1,20 +1,20 @@
 echo "✅ Installing Submodules..."
 cd ./submodules/nvdiffrast/
-pip install .
+pip install --no-build-isolation .
 
 cd ../simple-knn/
 python setup.py install
 
-pip install git+https://github.com/rmurai0610/diff-gaussian-rasterization-w-pose.git
+pip install --no-build-isolation git+https://github.com/rmurai0610/diff-gaussian-rasterization-w-pose.git
 git clone https://github.com/esw0116/ODGS.git
 cd ../ODGS
-pip install submodules/odgs-gaussian-rasterization
+pip install --no-build-isolation submodules/odgs-gaussian-rasterization
 cd ../..
 
 cd code
 echo "✅ Installing DiffSynth-Studio..."
 cd DiffSynth-Studio/
-pip install -e .
+pip install -e --no-build-isolation .
 
 
 cd ../DA3/
@@ -48,11 +48,8 @@ pip install einops==0.8.0
 pip install open_clip_torch
 pip install SwissArmyTransformer==0.4.12
 pip install wandb==0.21.1
-pip install -e git+https://github.com/CompVis/taming-transformers.git@master#egg=taming-transformers
+pip install -e --no-build-isolation git+https://github.com/CompVis/taming-transformers.git@master#egg=taming-transformers
 pip uninstall basicsr
 pip install openai-clip
-
-pip install -e . # Basic
-pip install --no-build-isolation git+https://github.com/nerfstudio-project/gsplat.git@0b4dddf04cb687367602c01196913cde6a743d70 # for gaussian head
 
 echo "✅ All dependencies installed successfully."
