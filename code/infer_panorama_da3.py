@@ -25,8 +25,8 @@ def load_da3_model(model_name: str, device: str) -> DepthAnything3:
 def run_da3_on_image(
         model: DepthAnything3,
         image_path: Path,
-) -> np.ndarray:
-    """Run DA3METRIC (or other DA3 model) on a single RGB image path and return depth.
+) -> tuple[np.ndarray, np.ndarray]:
+    """Run DA3 on a single RGB image path and return (depth, confidence).
 
     DepthAnything3.inference expects a list of images; we pass a single numpy RGB image.
     """
@@ -36,8 +36,9 @@ def run_da3_on_image(
     rgb = cv2.cvtColor(bgr, cv2.COLOR_BGR2RGB)
 
     prediction = model.inference([rgb])
-    # prediction.depth: (N, H, W). We take the first element.
+    # prediction.depth, prediction.conf : (N, H, W). We take the first element of each.
     depth = prediction.depth[0].astype(np.float32)
+    conf = prediction.conf[0].astype(np.float32)
 
     # Sanitize depth: remove NaNs/Infs and ensure we have some positive values
     depth = np.nan_to_num(depth, nan=0.0, posinf=0.0, neginf=0.0)
@@ -46,21 +47,21 @@ def run_da3_on_image(
     if not np.any(finite):
         raise RuntimeError(f"DA3 produced no finite depth values for image: {image_path}")
 
+    # Ensure depth is positive somewhere; if not, shift into a positive range.
     positive = finite & (depth > 0)
     if not np.any(positive):
-        # If the model outputs non‑positive depths only, shift them to be positive
         finite_vals = depth[finite]
         min_val = float(finite_vals.min())
-        # Shift so minimum finite value is a small positive epsilon
         depth = depth - min_val + 1e-3
 
-    return depth
+    return depth, conf
 
 
 def save_outputs(
         image_path: Path,
         output_root: Path,
         depth: np.ndarray,
+        conf: np.ndarray | None = None,
         save_maps: bool = True,
         subdir_name: str = "da3",
 ) -> None:
@@ -102,11 +103,34 @@ def save_outputs(
         depth_color = (cv2.applyColorMap((depth_norm * 255).astype(np.uint8), cv2.COLORMAP_INFERNO))
         cv2.imwrite(str(save_dir / "depth_vis.png"), depth_color)
 
-        # Binary mask: valid where depth is finite and strictly positive
-        valid_mask = np.isfinite(depth) & (depth > 0)
+        # Binary mask: derive from DA3 confidence if available, otherwise from depth.
+        if conf is not None:
+            # Normalize confidence to [0,1] and threshold.
+            conf_valid = np.isfinite(conf)
+            if np.any(conf_valid):
+                c = conf.copy()
+                c[~conf_valid] = 0.0
+                c_min = float(c[conf_valid].min())
+                c_max = float(c[conf_valid].max())
+                if c_max > c_min:
+                    c_norm = (c - c_min) / (c_max - c_min)
+                else:
+                    c_norm = np.zeros_like(c)
+                # Primary threshold on confidence.
+                valid_mask = c_norm > 0.2
+                if not np.any(valid_mask):
+                    # If too strict, accept any positive confidence.
+                    valid_mask = c_norm > 0.0
+            else:
+                valid_mask = np.ones_like(depth, dtype=bool)
+        else:
+            valid_mask = np.isfinite(depth) & (depth > 0)
+            if not np.any(valid_mask):
+                valid_mask = np.isfinite(depth)
+
         if not np.any(valid_mask):
-            # As a last resort, treat all finite depths as valid
-            valid_mask = np.isfinite(depth)
+            raise RuntimeError(f"DA3 produced empty validity mask for image: {image_path}")
+
         mask = valid_mask.astype(np.uint8) * 255
         cv2.imwrite(str(save_dir / "mask.png"), mask)
 
@@ -158,11 +182,11 @@ def main() -> None:
     if not image_paths:
         raise FileNotFoundError(f"No input images found in {input_path}")
 
-    # Load DA3 metric model
+    # Load DA3 model (can be metric or any-view; configured via args)
     model = load_da3_model(args.pretrained_name_or_path, device)
 
     for img_path in image_paths:
-        depth = run_da3_on_image(model, img_path)
+        depth, conf = run_da3_on_image(model, img_path)
 
         # If resize_to is specified, resize depth accordingly
         if args.resize_to is not None:
@@ -171,7 +195,7 @@ def main() -> None:
             new_w = min(args.resize_to, int(args.resize_to * w / h))
             depth = cv2.resize(depth, (new_w, new_h), interpolation=cv2.INTER_LINEAR)
 
-        save_outputs(img_path, output_path, depth, save_maps=args.save_maps or True)
+        save_outputs(img_path, output_path, depth, conf, save_maps=args.save_maps or True)
 
 
 if __name__ == "__main__":
