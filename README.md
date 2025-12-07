@@ -181,6 +181,10 @@
 
 **Related Project**: If you want to explore Real-Time Interactive Long-Sequence World Models, please visit [Matrix-Game 2.0](https://github.com/SkyworkAI/Matrix-Game/tree/main/Matrix-Game-2) for details.
 
+For monocular depth and camera intrinsics estimation, the current implementation uses **Depth Anything 3** models:
+- `depth-anything/DA3METRIC-LARGE` for metric depth estimation.
+- `depth-anything/DA3-SMALL` for intrinsics/FOV estimation.
+
 ## 📦 Installation
 Currently tested on Linux system with NVIDIA GPU.
 
@@ -480,10 +484,12 @@ This project is built on top of the follows, please consider citing them if you 
 - [FLUX.1](https://huggingface.co/black-forest-labs/FLUX.1-dev)
 - [Wan2.1](https://github.com/Wan-Video/Wan2.1)
 - [WorldGen](https://github.com/ZiYang-xie/WorldGen/)
-- [MoGe](https://github.com/microsoft/MoGe)
+- [Depth Anything 3](https://github.com/ByteDance-Seed/Depth-Anything-3)
 - [nvdiffrast](https://github.com/NVlabs/nvdiffrast)
 - [gaussian-splatting](https://github.com/graphdeco-inria/gaussian-splatting)
 - [StableSR](https://github.com/IceClear/StableSR)
 - [VEnhancer](https://github.com/Vchitect/VEnhancer)
+
+Earlier versions of this project experimented with [MoGe](https://github.com/microsoft/MoGe) for monocular geometry estimation; the current pipeline has been migrated to Depth Anything 3.
 ## 📧 Contact
 If you have any questions or would like us to implement any features, please feel free post an issue.

@@ -181,7 +181,6 @@ training_iters=3000 # optimization iterations
 num_of_point_cloud=3000000 # number of point cloud unprojected from depth map
 num_views_per_view=3 # inserted between adjacent camera poses
 img_sample_interval=1 # images selected during training to optimize 3DGS
-moge_ckpt_path = os.path.abspath("checkpoints/moge/model.pt")
 
 
 
@@ -477,8 +476,8 @@ class Video_Gen_Multi:
             
 
             if dist.get_rank() == 0:
-                print("\n\nperform moge...\n\n")
-                os.system(f"cd code/MoGe && python scripts/infer_panorama.py --input {os.path.abspath(input_image_path)} --output {case_dir} --pretrained {moge_ckpt_path} --device {device} --threshold 0.03 --maps --ply")
+                print("\n\nperform depth-anything-3...\n\n")
+                os.system(f"cd code/DA3 && python scripts/infer_panorama_da3.py --input {os.path.abspath(input_image_path)} --output {case_dir} --device {device} --maps")
         
             depth_path = os.path.join(case_dir, "moge","depth.exr")
             mask_path = os.path.join(case_dir, "moge", "mask.png")
@@ -686,11 +685,11 @@ class Video_Gen_Single:
         cv2.imwrite(input_image_path, panorama)
         
 
-        # perform moge inference;
+        # perform depth-anything-3 inference;
         #if dist.get_rank() == 0:
-        print("\n\nperform moge...\n\n")
+        print("\n\nperform depth-anything-3...\n\n")
         device=self.device
-        os.system(f"cd code/MoGe && python scripts/infer_panorama.py --input {os.path.abspath(input_image_path)} --output {case_dir} --pretrained {moge_ckpt_path} --device {device} --threshold 0.03 --maps --ply")
+        os.system(f"cd code/DA3 && python scripts/infer_panorama_da3.py --input {os.path.abspath(input_image_path)} --output {case_dir} --device {device} --maps")
         depth_path = os.path.join(case_dir, "moge","depth.exr")
         mask_path = os.path.join(case_dir, "moge", "mask.png")
         print(f"{os.path.exists(mask_path)},{mask_path}")

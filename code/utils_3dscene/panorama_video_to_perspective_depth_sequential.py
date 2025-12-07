@@ -1,9 +1,7 @@
 import os
 import sys
 os.environ['OPENCV_IO_ENABLE_OPENEXR'] = "1"
-sys.path.append("code/MoGe")
 sys.path.append("code")
-from moge.model import MoGeModel
 from utils_3dscene.pipeline_utils_3dscene import get_video_frames, warp_depth_to_tgt, depth_edge, optimize_depth
 # from ViewCrafter.viewcrafter import ViewCrafter_Completion
 from utils_3dscene.nvrender import get_mesh_from_pano_Rt, depth_edge_torch
@@ -22,10 +20,7 @@ import trimesh
 OPTIMAL_SPLIT_FRAME_SIZE = 49
 
 
-# 
-#moge_model_path = os.path.abspath("./code/MoGe/checkpoints/model.pt")
-moge_model_path = os.path.abspath("checkpoints/moge/model.pt")
-print("\n\n",moge_model_path,"\n\n")
+DA3_SCRIPT_CMD = "cd code/DA3 && python scripts/infer_panorama_da3.py"
 def apply_warp_fix(warped_depth, warped_mask):
     warped_depth_valid = warped_depth[warped_mask]
     warped_depth[~warped_mask] = warped_depth_valid.max() * 2.
@@ -64,7 +59,7 @@ def main(args):
     N = len(video_frames)
     N_anchors = len(anchor_frame_indices)
     os.makedirs(output_dir, exist_ok=True)
-    moge_output_dir = os.path.join(output_dir, "moge")
+    moge_output_dir = os.path.join(output_dir, "da3")
     data_output_dir = os.path.join(output_dir, "data")
     optimized_depth_dir = os.path.join(output_dir, "data", "optimized_depths")
     mv_rgb_dir = os.path.join(output_dir, "data", "mv_rgb")
@@ -121,9 +116,9 @@ def main(args):
             input_image_path = os.path.join(moge_output_dir, "input.png")
             cv2.imwrite(input_image_path, cv2.resize(cur_frame,(width,height)))
             print(width, height)
-            os.system(f"cd code/MoGe && python scripts/infer_panorama.py --input {input_image_path} --output {moge_output_dir} --pretrained {moge_model_path} --device {device} --threshold 0.03 --maps --ply --resolution_level 6")
+            os.system(f"{DA3_SCRIPT_CMD} --input {input_image_path} --output {moge_output_dir} --device {device} --maps")
             print(f"moge_output_dir={moge_output_dir}")
-            depth_dir = os.path.join(moge_output_dir, "input")
+            depth_dir = os.path.join(moge_output_dir, "da3")
             cur_depth = cv2.imread(os.path.join(depth_dir, "depth.exr"), cv2.IMREAD_ANYCOLOR|cv2.IMREAD_ANYDEPTH)
             cur_fgmask = cv2.imread(os.path.join(depth_dir, "mask.png"), cv2.IMREAD_UNCHANGED)[:,:] > 127
             cur_seam_mask = ~depth_edge(cur_depth, rtol=0.05)

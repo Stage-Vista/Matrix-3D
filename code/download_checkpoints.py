@@ -16,9 +16,39 @@ def download_ckpt(local_dir, repo_id, filename):
     else:
         print(f"File exists already: {local_path}")
 os.makedirs("./checkpoints", exist_ok=True)
-repo_id_list = ["Ruicheng/moge-vitl","Iceclear/StableSR","Iceclear/StableSR","Skywork/Matrix-3D","Skywork/Matrix-3D","Skywork/Matrix-3D","Skywork/Matrix-3D","Skywork/Matrix-3D"]
-filename_list = ["model.pt","stablesr_turbo.ckpt","vqgan_cfw_00011.ckpt","checkpoints/text2panoimage_lora.safetensors","checkpoints/pano_lrm_480p.pt","checkpoints/pano_video_gen_480p.ckpt","checkpoints/pano_video_gen_720p.bin","checkpoints/pano_video_gen_720p_5b.safetensors"]
-local_dir_list = ["./checkpoints/moge","./checkpoints/StableSR","./checkpoints/StableSR","./checkpoints/flux_lora","./checkpoints/pano_lrm","./checkpoints/Wan-AI/wan_lora","./checkpoints/Wan-AI/wan_lora","./checkpoints/Wan-AI/wan_lora"]
+repo_id_list = [
+    "depth-anything/DA3METRIC-LARGE",
+    "depth-anything/DA3-SMALL",
+    "Iceclear/StableSR",
+    "Iceclear/StableSR",
+    "Skywork/Matrix-3D",
+    "Skywork/Matrix-3D",
+    "Skywork/Matrix-3D",
+    "Skywork/Matrix-3D",
+    "Skywork/Matrix-3D",
+]
+filename_list = [
+    "model.safetensors",
+    "model.safetensors",
+    "stablesr_turbo.ckpt",
+    "vqgan_cfw_00011.ckpt",
+    "checkpoints/text2panoimage_lora.safetensors",
+    "checkpoints/pano_lrm_480p.pt",
+    "checkpoints/pano_video_gen_480p.ckpt",
+    "checkpoints/pano_video_gen_720p.bin",
+    "checkpoints/pano_video_gen_720p_5b.safetensors",
+]
+local_dir_list = [
+    "./checkpoints/DA3METRIC-LARGE",
+    "./checkpoints/DA3-SMALL",
+    "./checkpoints/StableSR",
+    "./checkpoints/StableSR",
+    "./checkpoints/flux_lora",
+    "./checkpoints/pano_lrm",
+    "./checkpoints/Wan-AI/wan_lora",
+    "./checkpoints/Wan-AI/wan_lora",
+    "./checkpoints/Wan-AI/wan_lora",
+]
 
 N = len(repo_id_list)
 for i in range(N):

@@ -185,7 +185,6 @@ training_iters=3000 # optimization iterations
 num_of_point_cloud=3000000 # number of point cloud unprojected from depth map
 num_views_per_view=3 # inserted between adjacent camera poses
 img_sample_interval=1 # images selected during training to optimize 3DGS
-moge_ckpt_path = os.path.abspath("checkpoints/moge/model.pt")
 
 def simple_filename(prompt):
     filename = re.sub(r'[^\w\s-]', '', prompt)  
@@ -245,13 +244,13 @@ def main(args):
     os.makedirs(case_dir,exist_ok=True)
     print(f"panorama_path={panorama_path}")
     panorama = cv2.resize(cv2.imread(panorama_path, cv2.IMREAD_UNCHANGED),(2048,1024),interpolation=cv2.INTER_AREA)
-    input_image_path = os.path.join(case_dir, "moge.png")
+    input_image_path = os.path.join(case_dir, "da3.png")
     cv2.imwrite(input_image_path, panorama)
     if dist.get_rank() == 0:
-        print("\n\nperform moge...\n\n")
-        os.system(f"cd code/MoGe && python scripts/infer_panorama.py --input {os.path.abspath(input_image_path)} --output {case_dir} --pretrained {moge_ckpt_path} --device {device} --threshold 0.03 --maps --ply")
-        depth_path = os.path.join(case_dir, "moge","depth.exr")
-        mask_path = os.path.join(case_dir, "moge", "mask.png")
+        print("\n\nperform depth-anything-3...\n\n")
+        os.system(f"cd code/DA3 && python scripts/infer_panorama_da3.py --input {os.path.abspath(input_image_path)} --output {case_dir} --device {device} --maps")
+        depth_path = os.path.join(case_dir, "da3","depth.exr")
+        mask_path = os.path.join(case_dir, "da3", "mask.png")
         print(f"{os.path.exists(mask_path)},{mask_path}")
         depth = cv2.imread(depth_path, cv2.IMREAD_ANYCOLOR|cv2.IMREAD_ANYDEPTH)
         mask = cv2.imread(mask_path, cv2.IMREAD_UNCHANGED)[:,:] > 127

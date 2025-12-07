@@ -4,3 +4,6 @@
 [submodule "submodules/ODGS"]
 	path = submodules/ODGS
 	url = https://github.com/esw0116/ODGS
+[submodule "code/DA3"]
+	path = code/DA3
+	url = git@github.com:ByteDance-Seed/Depth-Anything-3.git
