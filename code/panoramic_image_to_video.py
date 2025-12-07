@@ -262,11 +262,10 @@ def main(args):
             mask = cv2.resize(mask.astype(np.uint8), (pw, ph), interpolation=cv2.INTER_NEAREST) > 127
 
         # Use the DA3-provided mask as the definition of valid pixels.
-        # If, after DA3 + resizing, the mask ends up empty (e.g., due to
-        # overly conservative upstream filtering), fall back to treating the
-        # entire panorama as valid so the pipeline can proceed.
+        # With the current DA3 integration, this should never be empty; if it
+        # is, surface an explicit error instead of silently changing semantics.
         if not np.any(mask):
-            mask = np.ones_like(depth, dtype=bool)
+            raise RuntimeError("DA3 mask is empty for this panorama; cannot derive valid depth region.")
 
         valid_max = depth[mask].max()
         depth[~mask] = 2.0 * valid_max
@@ -355,7 +354,7 @@ def main(args):
             ],
             use_usp=True if dist.get_world_size() > 1 else False
         )
-        lora_checkpoint = os.path.abspath("./checkpoints/Wan-AI/wan-lora/pano_video_gen_720p_5b.safetensors")
+        lora_checkpoint = os.path.abspath("./checkpoints/Wan-AI/wan_lora/pano_video_gen_720p_5b.safetensors")
         model = add_lora_to_model(
             getattr(pipe, "dit"),
             "q,k,v,o,ffn.0,ffn.2".split(","),

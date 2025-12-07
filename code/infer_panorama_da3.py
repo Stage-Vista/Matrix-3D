@@ -129,11 +129,11 @@ def save_outputs(
             else:
                 valid_mask = np.ones_like(depth, dtype=bool)
         else:
-            # For models without confidence (e.g., DA3METRIC-LARGE), treat all
-            # finite depth pixels as valid. Earlier we already enforced that
-            # there exists at least one finite depth value, so this mask will
-            # never be empty.
-            valid_mask = np.isfinite(depth)
+            # For models without confidence (e.g., DA3METRIC-LARGE), DA3 only
+            # outputs a single depth map, and the recommended usage is to use
+            # all pixels. In this case we define the validity mask as the
+            # entire image.
+            valid_mask = np.ones_like(depth, dtype=bool)
 
         mask = valid_mask.astype(np.uint8) * 255
         cv2.imwrite(str(save_dir / "mask.png"), mask)
