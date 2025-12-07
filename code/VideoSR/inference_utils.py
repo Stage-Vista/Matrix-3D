@@ -120,14 +120,15 @@ def save_video(video, save_dir, file_name, fps=16.0):
         tpth = os.path.join(temp_dir, "%06d.png" % (fid + 1))
         cv2.imwrite(tpth, frame[:, :, ::-1])
     tmp_path = os.path.join(save_dir, "tmp.mp4")
-    cmd = f"/ai-video-sh/haoxiang.guo/HoloTime/ffmpeg-7.0.2-amd64-static/ffmpeg -y -f image2 -framerate {fps} -i {temp_dir}/%06d.png \
-     -vcodec libx264 -crf 17 -pix_fmt yuv420p {tmp_path}"
-    # import pdb; pdb.set_trace()
-    # cmd = f"ffmpeg -y -f image2 -framerate {fps} -i {temp_dir}/%06d.png \
-    #  -vcodec libx264 -pix_fmt yuv420p {tmp_path}"
+    # Use system ffmpeg to assemble the frames into a video. If ffmpeg is not
+    # available or encoding fails, log the error and return without raising.
+    cmd = f"ffmpeg -y -f image2 -framerate {fps} -i {temp_dir}/%06d.png -vcodec libx264 -crf 17 -pix_fmt yuv420p {tmp_path}"
     status, output = subprocess.getstatusoutput(cmd)
-    if status != 0:
-        logger.error(f"Save Video Error with {output}")
+    if status != 0 or not os.path.exists(tmp_path):
+        logger.error(f"Save Video Error (status={status}) with output: {output}")
+        os.system(f"rm -rf {temp_dir}")
+        return
+
     os.system(f"rm -rf {temp_dir}")
     os.rename(tmp_path, output_path)
 
