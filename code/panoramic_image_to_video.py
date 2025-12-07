@@ -253,13 +253,18 @@ def main(args):
         mask_path = os.path.join(case_dir, "da3", "mask.png")
         print(f"{os.path.exists(mask_path)},{mask_path}")
         depth = cv2.imread(depth_path, cv2.IMREAD_ANYCOLOR | cv2.IMREAD_ANYDEPTH)
+        # Read DA3 mask as 0/255 and convert to a boolean mask where True means
+        # non-sky / valid geometry.
         mask = cv2.imread(mask_path, cv2.IMREAD_UNCHANGED)[:, :] > 127
 
         # Ensure depth and mask match the panorama resolution expected by the renderer
         ph, pw = panorama.shape[:2]
         if depth.shape[:2] != (ph, pw):
             depth = cv2.resize(depth, (pw, ph), interpolation=cv2.INTER_LINEAR)
-            mask = cv2.resize(mask.astype(np.uint8), (pw, ph), interpolation=cv2.INTER_NEAREST) > 127
+            # At this point `mask` is already boolean (0/1). If we cast to
+            # uint8 and threshold at 127 again, we would turn all 1s into
+            # False. Instead, preserve the 0/1 semantics and threshold > 0.
+            mask = cv2.resize(mask.astype(np.uint8), (pw, ph), interpolation=cv2.INTER_NEAREST) > 0
 
         # Use the DA3-provided mask as the definition of valid pixels.
         # With the current DA3 integration, this should never be empty; if it
