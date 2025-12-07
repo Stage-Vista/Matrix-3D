@@ -233,14 +233,15 @@ The specific amount of GPU vram occupation under different model settings are li
 
 <!-- | Model Name | Drop Location |
 | :---------: | :----------: | 
-|[MoGe](https://huggingface.co/Ruicheng/moge-vitl/tree/main)|./checkpoints/moge|
+|[DA3METRIC-LARGE](https://huggingface.co/depth-anything/DA3METRIC-LARGE)|./checkpoints/DA3METRIC-LARGE|
+|[DA3-SMALL](https://huggingface.co/depth-anything/DA3-SMALL)|./checkpoints/DA3-SMALL|
 |[Wan_Lora](https://huggingface.co/Skywork/Matrix-3D)|./checkpoints/Wan-AI/wan_lora|
 |[Flux_Lora](https://huggingface.co/Skywork/Matrix-3D)|./checkpoints/flux_lora|
 |[LRM](https://huggingface.co/Skywork/Matrix-3D)|./checkpoints/pano_lrm|
 |[VEnhancer](https://huggingface.co/jwhejwhe/VEnhancer/resolve/main/venhancer_v2.pt?download=true)|./code/VideoSR/checkpoints|
 |[StableSR](https://huggingface.co/Iceclear/StableSR/tree/main)|./code/StableSR/ckpt| -->
 
-<!-- [MoGe](https://huggingface.co/Ruicheng/moge-vitl/tree/main),
+<!-- [DA3METRIC-LARGE](https://huggingface.co/depth-anything/DA3METRIC-LARGE),
 [Flux_Lora](https://huggingface.co/Skywork/Matrix-3D)
 [Wan_Lora](https://huggingface.co/Skywork/Matrix-3D)
 [VEnhancer](https://huggingface.co/jwhejwhe/VEnhancer/resolve/main/venhancer_v2.pt?download=true) -->

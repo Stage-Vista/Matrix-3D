@@ -2178,7 +2178,7 @@ def generate_mask_video_projection_torch(csv_cams, depth):
 if __name__=="__main__":
 
     print("try getting trimesh")
-    base_dir = "/mnt/datasets_3d/zhongqi.yang/VideoInpainting_new/output/seg_0402/case11_mesh/moge/11_out_superres"
+    base_dir = "/mnt/datasets_3d/zhongqi.yang/VideoInpainting_new/output/seg_0402/case11_mesh/da3/11_out_superres"
     depth_path = os.path.join(base_dir, "depth.exr")
     rgb_path = os.path.join(base_dir, "img.png")
     mask_path = os.path.join(base_dir, "mask.png")

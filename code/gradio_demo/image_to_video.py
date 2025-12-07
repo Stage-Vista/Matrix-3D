@@ -469,18 +469,18 @@ class Video_Gen_Multi:
             os.makedirs(output_dir, exist_ok=True)
             print(f"panorama_path={panorama_path}")
             panorama = cv2.resize(cv2.imread(panorama_path, cv2.IMREAD_UNCHANGED),(2048,1024),interpolation=cv2.INTER_AREA)
-            
-            
-            input_image_path = os.path.join(case_dir, "moge.png")
+
+
+            input_image_path = os.path.join(case_dir, "da3.png")
             cv2.imwrite(input_image_path, panorama)
             
 
             if dist.get_rank() == 0:
                 print("\n\nperform depth-anything-3...\n\n")
                 os.system(f"cd code/DA3 && python scripts/infer_panorama_da3.py --input {os.path.abspath(input_image_path)} --output {case_dir} --device {device} --maps")
-        
-            depth_path = os.path.join(case_dir, "moge","depth.exr")
-            mask_path = os.path.join(case_dir, "moge", "mask.png")
+
+            depth_path = os.path.join(case_dir, "da3","depth.exr")
+            mask_path = os.path.join(case_dir, "da3", "mask.png")
             
             
             print(f"{os.path.exists(mask_path)},{mask_path}")
@@ -681,17 +681,17 @@ class Video_Gen_Single:
         print(f"case_dir={case_dir}")
         os.makedirs(case_dir,exist_ok=True)
         panorama = cv2.resize(cv2.imread(panorama_path, cv2.IMREAD_UNCHANGED),(2048,1024),interpolation=cv2.INTER_AREA)
-        input_image_path = os.path.join(case_dir, "moge.png")
+        input_image_path = os.path.join(case_dir, "da3.png")
         cv2.imwrite(input_image_path, panorama)
-        
+
 
         # perform depth-anything-3 inference;
         #if dist.get_rank() == 0:
         print("\n\nperform depth-anything-3...\n\n")
         device=self.device
         os.system(f"cd code/DA3 && python scripts/infer_panorama_da3.py --input {os.path.abspath(input_image_path)} --output {case_dir} --device {device} --maps")
-        depth_path = os.path.join(case_dir, "moge","depth.exr")
-        mask_path = os.path.join(case_dir, "moge", "mask.png")
+        depth_path = os.path.join(case_dir, "da3","depth.exr")
+        mask_path = os.path.join(case_dir, "da3", "mask.png")
         print(f"{os.path.exists(mask_path)},{mask_path}")
 
         # import pdb
@@ -777,7 +777,6 @@ def main(args):
     output_dir = args.inout_dir
     panorama_path = os.path.join(output_dir, 'pano_img.jpg')
     prompt_path = os.path.join(output_dir,"prompt.txt")
-    print(f"moge_ckpt_path={moge_ckpt_path}")
 
 
     dist.init_process_group(
@@ -822,13 +821,13 @@ def main(args):
     os.makedirs(case_dir,exist_ok=True)
     print(f"panorama_path={panorama_path}")
     panorama = cv2.resize(cv2.imread(panorama_path, cv2.IMREAD_UNCHANGED),(2048,1024),interpolation=cv2.INTER_AREA)
-    input_image_path = os.path.join(case_dir, "moge.png")
+    input_image_path = os.path.join(case_dir, "da3.png")
     cv2.imwrite(input_image_path, panorama)
     if dist.get_rank() == 0:
-        print("\n\nperform moge...\n\n")
-        os.system(f"cd code/MoGe && python scripts/infer_panorama.py --input {os.path.abspath(input_image_path)} --output {case_dir} --pretrained {moge_ckpt_path} --device {device} --threshold 0.03 --maps --ply")
-        depth_path = os.path.join(case_dir, "moge","depth.exr")
-        mask_path = os.path.join(case_dir, "moge", "mask.png")
+        print("\n\nperform depth-anything-3...\n\n")
+        os.system(f"cd code/DA3 && python scripts/infer_panorama_da3.py --input {os.path.abspath(input_image_path)} --output {case_dir} --device {device} --maps")
+        depth_path = os.path.join(case_dir, "da3","depth.exr")
+        mask_path = os.path.join(case_dir, "da3", "mask.png")
         print(f"{os.path.exists(mask_path)},{mask_path}")
         depth = cv2.imread(depth_path, cv2.IMREAD_ANYCOLOR|cv2.IMREAD_ANYDEPTH)
         mask = cv2.imread(mask_path, cv2.IMREAD_UNCHANGED)[:,:] > 127

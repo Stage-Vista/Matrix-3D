@@ -59,7 +59,7 @@ def main(args):
     N = len(video_frames)
     N_anchors = len(anchor_frame_indices)
     os.makedirs(output_dir, exist_ok=True)
-    moge_output_dir = os.path.join(output_dir, "da3")
+    da3_output_dir = os.path.join(output_dir, "da3")
     data_output_dir = os.path.join(output_dir, "data")
     optimized_depth_dir = os.path.join(output_dir, "data", "optimized_depths")
     mv_rgb_dir = os.path.join(output_dir, "data", "mv_rgb")
@@ -67,8 +67,8 @@ def main(args):
     print(f"In Panorama ,output_dir={output_dir}")
 
 
-    os.makedirs(moge_output_dir, exist_ok=True)
-    print(f"In Panorama ,moge_output_dir={moge_output_dir}")
+    os.makedirs(da3_output_dir, exist_ok=True)
+    print(f"In Panorama ,da3_output_dir={da3_output_dir}")
     os.makedirs(data_output_dir, exist_ok=True)
     os.makedirs(optimized_depth_dir, exist_ok=True)
     os.makedirs(mv_rgb_dir, exist_ok=True)
@@ -113,12 +113,12 @@ def main(args):
             #anchor_camera = all_cameras[anchor_index]
             
             
-            input_image_path = os.path.join(moge_output_dir, "input.png")
+            input_image_path = os.path.join(da3_output_dir, "input.png")
             cv2.imwrite(input_image_path, cv2.resize(cur_frame,(width,height)))
             print(width, height)
-            os.system(f"{DA3_SCRIPT_CMD} --input {input_image_path} --output {moge_output_dir} --device {device} --maps")
-            print(f"moge_output_dir={moge_output_dir}")
-            depth_dir = os.path.join(moge_output_dir, "da3")
+            os.system(f"{DA3_SCRIPT_CMD} --input {input_image_path} --output {da3_output_dir} --device {device} --maps")
+            print(f"da3_output_dir={da3_output_dir}")
+            depth_dir = os.path.join(da3_output_dir, "da3")
             cur_depth = cv2.imread(os.path.join(depth_dir, "depth.exr"), cv2.IMREAD_ANYCOLOR|cv2.IMREAD_ANYDEPTH)
             cur_fgmask = cv2.imread(os.path.join(depth_dir, "mask.png"), cv2.IMREAD_UNCHANGED)[:,:] > 127
             cur_seam_mask = ~depth_edge(cur_depth, rtol=0.05)

@@ -5,8 +5,8 @@ checkpoints/Wan-AI/Wan2.1-I2V-14B-720P/
 checkpoints/pano_lrm
 checkpoints/VEnhancer
 checkpoints/Wan-AI/wan_lora/
-checkpoints/moge/model.pt
-checkpoints/moge/model.pt.temp
+checkpoints/DA3METRIC-LARGE/
+checkpoints/DA3-SMALL/
 checkpoints/hub
 output/
 asset/**/*.mp4

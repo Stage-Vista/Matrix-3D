@@ -196,7 +196,6 @@ training_iters=6000 # optimization iterations
 num_of_point_cloud=3000000 # number of point cloud unprojected from depth map
 num_views_per_view=3 # 相邻两个相机位姿之间插针数目
 img_sample_interval=1 # 训练时每隔多少张图片选取用于优化3DGS
-moge_ckpt_path = "/ai-video-sh/zhongqi.yang/code/zhongqi.yang/Trajcrafter_Training/MoGe/checkpoints/model.pt"
 
 
 
@@ -287,8 +286,6 @@ def main(args):
         generated_video_path = os.path.join(generated_dir,"generated_resize_enhance.mp4")
         width_following = 1920
         height_following = 960
-    # moge主要是花时间的地方全在深度拼接那块。
-    # 这就有点难受了。
     # perform per-frame depth estimation and optimization;
     camera_path = os.path.join(condition_dir,"cameras.npz")
     os.system(f"python panorama_video_to_perspective_depth_sequential.py \
