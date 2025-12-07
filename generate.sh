@@ -4,7 +4,7 @@ output_dir=output/example1
 python code/panoramic_image_generation.py \
     --mode=t2p \
     --seed=1024 \
-    --prompt="a modern fully furnished open plan living room (with a full kitchen containing a fridge, stovetop, microwave, conventional oven, dishwasher, sink, cabinetry and countertops) of an apartment in a high-rise-building, detailed textures, high resolution, functional and aesthetic layout" \
+    --prompt="a modern fully furnished open plan living room of an apartment in a high-rise-building, detailed textures, high resolution, functional and aesthetic layout" \
     --output_path=$output_dir
 
 # Or you can choose image to panorama image generation
