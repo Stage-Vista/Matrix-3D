@@ -16,7 +16,7 @@ cd ../..
 cd code
 echo "✅ Installing DiffSynth-Studio..."
 cd DiffSynth-Studio/
-pip install -e --no-build-isolation .
+pip install -e .
 
 
 cd ../DA3/
@@ -50,7 +50,7 @@ pip install einops==0.8.0
 pip install open_clip_torch
 pip install SwissArmyTransformer==0.4.12
 pip install wandb==0.21.1
-pip install -e --no-build-isolation git+https://github.com/CompVis/taming-transformers.git@master#egg=taming-transformers
+pip install -e git+https://github.com/CompVis/taming-transformers.git@master#egg=taming-transformers
 pip uninstall basicsr
 pip install openai-clip
 
