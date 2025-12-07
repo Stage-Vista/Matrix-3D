@@ -36,9 +36,14 @@ def run_da3_on_image(
     rgb = cv2.cvtColor(bgr, cv2.COLOR_BGR2RGB)
 
     prediction = model.inference([rgb])
-    # prediction.depth, prediction.conf : (N, H, W). We take the first element of each.
+    # prediction.depth : (N, H, W). prediction.conf may be None depending on the model.
     depth = prediction.depth[0].astype(np.float32)
-    conf = prediction.conf[0].astype(np.float32)
+
+    raw_conf = getattr(prediction, "conf", None)
+    if raw_conf is not None:
+        conf = raw_conf[0].astype(np.float32)
+    else:
+        conf = None
 
     # Sanitize depth: remove NaNs/Infs and ensure we have some positive values
     depth = np.nan_to_num(depth, nan=0.0, posinf=0.0, neginf=0.0)
@@ -124,12 +129,11 @@ def save_outputs(
             else:
                 valid_mask = np.ones_like(depth, dtype=bool)
         else:
-            valid_mask = np.isfinite(depth) & (depth > 0)
-            if not np.any(valid_mask):
-                valid_mask = np.isfinite(depth)
-
-        if not np.any(valid_mask):
-            raise RuntimeError(f"DA3 produced empty validity mask for image: {image_path}")
+            # For models without confidence (e.g., DA3METRIC-LARGE), treat all
+            # finite depth pixels as valid. Earlier we already enforced that
+            # there exists at least one finite depth value, so this mask will
+            # never be empty.
+            valid_mask = np.isfinite(depth)
 
         mask = valid_mask.astype(np.uint8) * 255
         cv2.imwrite(str(save_dir / "mask.png"), mask)
