@@ -450,7 +450,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--angle", type=float, default=0., help="the azimuth angle of camera movement direction. angle=0 means the camera moves towards the center of the panoramic image, angle=90 means the camera moves towards the middle-right direction of the panoramic image")
     parser.add_argument("--movement_range", type=float, default=0.6, help="relative movement range of the camera w.r.t the estimated depth of the input panorama. the value should be between 0~0.8")
-    parser.add_argument("--movement_mode", type=str, default="straight", help="the shape of the rail along which the camera moves. choose between ['s_curve','l_curve','r_curve','straight']")
+    parser.add_argument("--movement_mode", type=str, default="s_curve", help="the shape of the rail along which the camera moves. choose between ['s_curve','l_curve','r_curve','straight']")
     parser.add_argument("--json_path", type=str, default="", help="predefined camera path. the predefined camera is stored as json file in the format defined in code/generate_example_camera.py")#######2025-6-13
     parser.add_argument("--seed", type=int, default=0, help="the generation seed")
     parser.add_argument("--resolution", type=int, default=720, help="the working resolution of the panoramic video generation model.")

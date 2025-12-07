@@ -54,8 +54,8 @@ def main(args):
         prompt = args.prompt
         print(f"input prompt={prompt}")
         pano_image = t2p_Pipeline(prompt, 
-                height=512,
-                width=1024,
+                height=1024,
+                width=2048,
                 generator=torch.Generator("cpu").manual_seed(seed),
                 num_inference_steps=50, 
                 blend_extend=0,

@@ -4,7 +4,7 @@ os.environ["OPENCV_IO_ENABLE_OPENEXR"] = "1"
 sys.path.append("./DiffSynth-Studio")
 import argparse
 import cv2
-        
+
 def main(args):
     device = args.device
     step1_output_dir = os.path.abspath(args.inout_dir)
@@ -17,17 +17,20 @@ def main(args):
 
     generated_dir = os.path.join(step1_output_dir, "generated")
     condition_dir = os.path.join(step1_output_dir, "condition")
-    
+
     generated_video_path = os.path.join(generated_dir,"generated.mp4")
     if args.resolution == 720:
-        width_following = 1440
-        height_following = 720
+        os.system(
+            f"cd code/VideoSR && python scripts/enhance_video_pipeline.py --version v2 --up_scale 1.5 --target_fps 24 --noise_aug 100 --solver_mode 'fast' --steps 15 --input_path {generated_video_path} --prompt '{prompt}' --save_dir {generated_dir} --suffix enhancement")
+        generated_video_path = os.path.join(generated_dir, "generated_resize_enhance.mp4")
+        width_following = 2160
+        height_following = 1080
     else:
         os.system(f"cd code/VideoSR && python scripts/enhance_video_pipeline.py --version v2 --up_scale 2 --target_fps 20 --noise_aug 100 --solver_mode 'fast' --steps 15 --input_path {generated_video_path} --prompt \'{prompt}\' --save_dir {generated_dir} --suffix enhancement")
         generated_video_path = os.path.join(generated_dir,"generated_resize_enhance.mp4")
         width_following = 1920
         height_following = 960
-        
+
     camera_path = os.path.join(condition_dir,"cameras.npz")
     os.system(f"python code/utils_3dscene/panorama_video_to_perspective_depth_sequential.py \
         --device {device} \
@@ -43,14 +46,22 @@ def main(args):
     ")
     # cut everything into perspective images;
 
+    # Around line 53-57 in the final GS optimization command:
+    os.system(f"cd ./code/Pano_GS_Opt && python train.py -s {gs_input_dir} -m {gs_output_dir} -r 1 --use_decoupled_appearance \
+        --save_iterations 5000 10000 15000 20000 \
+        --test_iterations 5000 \
+        --sh_degree 3 \
+        --densify_from_iter 500 \
+        --densify_until_iter 3000 \
+        --iterations 20000 \
+        --eval \
+        --img_sample_interval 1 \
+        --num_views_per_view 3 \
+        --num_of_point_cloud 5000000 \
+        --device {device} \
+        --distortion_from_iter 10000 \
+        --depth_normal_from_iter 10000")
 
-    os.system(
-        f"python code/utils_3dscene/gs_optim_datagen.py \
-            --optimized_depth_dir {os.path.join(step1_output_dir,'geom_optim/data/optimized_depths')} \
-            --camera_path {os.path.join(step1_output_dir,'condition/cameras.npz')} \
-            --output_dir {os.path.join(step1_output_dir,'geom_optim/data')} \
-        "
-    )
     cmd_rename = f"mv {os.path.join(step1_output_dir,'geom_optim/data/mv_rgb')} {os.path.join(step1_output_dir,'geom_optim/data/mv_rgb_ori')}"
     os.system(cmd_rename)
     #cmd = f"cd StableSR && python scripts/sr_val_ddpm_text_T_vqganfin_old.py --init-img {os.path.join(step1_output_dir,'geom_optim/data/mv_rgb_ori')} --outdir {os.path.join(step1_output_dir,'geom_optim/data/mv_rgb')}"
@@ -78,6 +89,6 @@ if __name__ == "__main__":
     parser.add_argument("--resolution", type=int, default=720, help="the working resolution of the 3D scene generation")
     # parser.add_argument("--step1_output_dir", type=str, default="/ai-video-sh/zhongqi.yang/code/zhongqi.yang/Trajcrafter_Training/output_step1/A_cherry_blossom_forest_with_petals_falling_gently,_a_wooden_bridge_over_a_stream,_and_a_shrine_in_the_background,_anime_style,_ultra-detailed,_soft_pastel_colors,_serene_ambiance_superres")
     args = parser.parse_args()
-    
+
 
     main(args)
