@@ -254,6 +254,12 @@ def main(args):
         print(f"{os.path.exists(mask_path)},{mask_path}")
         depth = cv2.imread(depth_path, cv2.IMREAD_ANYCOLOR|cv2.IMREAD_ANYDEPTH)
         mask = cv2.imread(mask_path, cv2.IMREAD_UNCHANGED)[:,:] > 127
+
+        # Ensure depth and mask match the panorama resolution expected by the renderer
+        ph, pw = panorama.shape[:2]
+        if depth.shape[:2] != (ph, pw):
+            depth = cv2.resize(depth, (pw, ph), interpolation=cv2.INTER_LINEAR)
+            mask = cv2.resize(mask.astype(np.uint8), (pw, ph), interpolation=cv2.INTER_NEAREST) > 127
         valid_max = depth[mask].max()
         depth[~mask] = 2. * valid_max
 
