@@ -252,16 +252,24 @@ def main(args):
         depth_path = os.path.join(case_dir, "da3","depth.exr")
         mask_path = os.path.join(case_dir, "da3", "mask.png")
         print(f"{os.path.exists(mask_path)},{mask_path}")
-        depth = cv2.imread(depth_path, cv2.IMREAD_ANYCOLOR|cv2.IMREAD_ANYDEPTH)
-        mask = cv2.imread(mask_path, cv2.IMREAD_UNCHANGED)[:,:] > 127
+        depth = cv2.imread(depth_path, cv2.IMREAD_ANYCOLOR | cv2.IMREAD_ANYDEPTH)
+        mask = cv2.imread(mask_path, cv2.IMREAD_UNCHANGED)[:, :] > 127
 
         # Ensure depth and mask match the panorama resolution expected by the renderer
         ph, pw = panorama.shape[:2]
         if depth.shape[:2] != (ph, pw):
             depth = cv2.resize(depth, (pw, ph), interpolation=cv2.INTER_LINEAR)
             mask = cv2.resize(mask.astype(np.uint8), (pw, ph), interpolation=cv2.INTER_NEAREST) > 127
-        valid_max = depth[mask].max()
-        depth[~mask] = 2. * valid_max
+
+        # Build a robust valid mask: start from DA3 mask, fall back to finite & >0
+        valid = mask & np.isfinite(depth) & (depth > 0)
+        if not np.any(valid):
+            valid = np.isfinite(depth) & (depth > 0)
+        if not np.any(valid):
+            raise RuntimeError("DA3 depth map contains no valid pixels (all invalid or non-positive)")
+
+        valid_max = depth[valid].max()
+        depth[~valid] = 2.0 * valid_max
 
         panorama_torch = (torch.from_numpy(panorama).float()/255.).to("cuda")
         depth_torch = torch.from_numpy(depth).float().to("cuda")

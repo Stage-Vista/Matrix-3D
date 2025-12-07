@@ -37,8 +37,24 @@ def run_da3_on_image(
 
     prediction = model.inference([rgb])
     # prediction.depth: (N, H, W). We take the first element.
-    depth = prediction.depth[0]
-    return depth.astype(np.float32)
+    depth = prediction.depth[0].astype(np.float32)
+
+    # Sanitize depth: remove NaNs/Infs and ensure we have some positive values
+    depth = np.nan_to_num(depth, nan=0.0, posinf=0.0, neginf=0.0)
+
+    finite = np.isfinite(depth)
+    if not np.any(finite):
+        raise RuntimeError(f"DA3 produced no finite depth values for image: {image_path}")
+
+    positive = finite & (depth > 0)
+    if not np.any(positive):
+        # If the model outputs non‑positive depths only, shift them to be positive
+        finite_vals = depth[finite]
+        min_val = float(finite_vals.min())
+        # Shift so minimum finite value is a small positive epsilon
+        depth = depth - min_val + 1e-3
+
+    return depth
 
 
 def save_outputs(
@@ -86,8 +102,12 @@ def save_outputs(
         depth_color = (cv2.applyColorMap((depth_norm * 255).astype(np.uint8), cv2.COLORMAP_INFERNO))
         cv2.imwrite(str(save_dir / "depth_vis.png"), depth_color)
 
-        # Binary mask: valid where depth is finite and > 0
-        mask = (np.isfinite(depth) & (depth > 0)).astype(np.uint8) * 255
+        # Binary mask: valid where depth is finite and strictly positive
+        valid_mask = np.isfinite(depth) & (depth > 0)
+        if not np.any(valid_mask):
+            # As a last resort, treat all finite depths as valid
+            valid_mask = np.isfinite(depth)
+        mask = valid_mask.astype(np.uint8) * 255
         cv2.imwrite(str(save_dir / "mask.png"), mask)
 
 
