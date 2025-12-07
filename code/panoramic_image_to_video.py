@@ -261,15 +261,14 @@ def main(args):
             depth = cv2.resize(depth, (pw, ph), interpolation=cv2.INTER_LINEAR)
             mask = cv2.resize(mask.astype(np.uint8), (pw, ph), interpolation=cv2.INTER_NEAREST) > 127
 
-        # Build a robust valid mask: start from DA3 mask, fall back to finite & >0
-        valid = mask & np.isfinite(depth) & (depth > 0)
-        if not np.any(valid):
-            valid = np.isfinite(depth) & (depth > 0)
-        if not np.any(valid):
-            raise RuntimeError("DA3 depth map contains no valid pixels (all invalid or non-positive)")
+        # Use the DA3-provided mask as the definition of valid pixels.
+        # If DA3 produced an empty mask, surface a clear error instead of
+        # silently changing the validity criterion here.
+        if not np.any(mask):
+            raise RuntimeError("DA3 mask is empty for this panorama; cannot derive valid depth region.")
 
-        valid_max = depth[valid].max()
-        depth[~valid] = 2.0 * valid_max
+        valid_max = depth[mask].max()
+        depth[~mask] = 2.0 * valid_max
 
         panorama_torch = (torch.from_numpy(panorama).float()/255.).to("cuda")
         depth_torch = torch.from_numpy(depth).float().to("cuda")
