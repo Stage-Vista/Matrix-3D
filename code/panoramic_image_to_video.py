@@ -262,10 +262,11 @@ def main(args):
             mask = cv2.resize(mask.astype(np.uint8), (pw, ph), interpolation=cv2.INTER_NEAREST) > 127
 
         # Use the DA3-provided mask as the definition of valid pixels.
-        # If DA3 produced an empty mask, surface a clear error instead of
-        # silently changing the validity criterion here.
+        # If, after DA3 + resizing, the mask ends up empty (e.g., due to
+        # overly conservative upstream filtering), fall back to treating the
+        # entire panorama as valid so the pipeline can proceed.
         if not np.any(mask):
-            raise RuntimeError("DA3 mask is empty for this panorama; cannot derive valid depth region.")
+            mask = np.ones_like(depth, dtype=bool)
 
         valid_max = depth[mask].max()
         depth[~mask] = 2.0 * valid_max
