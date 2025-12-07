@@ -1,3 +1,5 @@
+pip install ninja
+
 echo "✅ Installing Submodules..."
 cd ./submodules/nvdiffrast/
 pip install --no-build-isolation .
