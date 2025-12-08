@@ -41,12 +41,16 @@ def main(args):
         --width {width_following} \
         --height {height_following} \
     ")
-    # cut everything into perspective images and run GS optimization.
+    # Skip StableSR super-resolution and use original images
     cmd_rename = f"mv {os.path.join(step1_output_dir,'geom_optim/data/mv_rgb')} {os.path.join(step1_output_dir,'geom_optim/data/mv_rgb_ori')}"
     os.system(cmd_rename)
-    #cmd = f"cd StableSR && python scripts/sr_val_ddpm_text_T_vqganfin_old.py --init-img {os.path.join(step1_output_dir,'geom_optim/data/mv_rgb_ori')} --outdir {os.path.join(step1_output_dir,'geom_optim/data/mv_rgb')}"
-    cmd = f"cd code/StableSR && python scripts/sr_val_ddpm_text_T_vqganfin_old.py --init-img {os.path.join(step1_output_dir,'geom_optim/data/mv_rgb_ori')} --outdir {os.path.join(step1_output_dir,'geom_optim/data/mv_rgb')} --config configs/stableSRNew/v2-finetune_text_T_512.yaml --ckpt {os.path.abspath('./checkpoints/StableSR/stablesr_turbo.ckpt')} --ddpm_steps 4 --dec_w 0.5 --seed 42 --n_samples 1 --vqgan_ckpt {os.path.abspath('./checkpoints/StableSR/vqgan_cfw_00011.ckpt')} --colorfix_type wavelet"
-    os.system(cmd)
+    
+    # Create symlink to use original images instead of running StableSR
+    os.system(f"ln -sf {os.path.join(step1_output_dir,'geom_optim/data/mv_rgb_ori')} {os.path.join(step1_output_dir,'geom_optim/data/mv_rgb')}")
+    
+    # Commented out StableSR command to avoid taming module dependency
+    # cmd = f"cd code/StableSR && python scripts/sr_val_ddpm_text_T_vqganfin_old.py --init-img {os.path.join(step1_output_dir,'geom_optim/data/mv_rgb_ori')} --outdir {os.path.join(step1_output_dir,'geom_optim/data/mv_rgb')} --config configs/stableSRNew/v2-finetune_text_T_512.yaml --ckpt {os.path.abspath('./checkpoints/StableSR/stablesr_turbo.ckpt')} --ddpm_steps 4 --dec_w 0.5 --seed 42 --n_samples 1 --vqgan_ckpt {os.path.abspath('./checkpoints/StableSR/vqgan_cfw_00011.ckpt')} --colorfix_type wavelet"
+    # os.system(cmd)
     # apply gs optimization;
     #for i in range(N):
     gs_input_dir = os.path.join(step1_output_dir,'geom_optim/data')
