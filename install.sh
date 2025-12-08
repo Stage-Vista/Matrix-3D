@@ -1,3 +1,5 @@
+apt install -y ffmpeg
+
 pip install ninja
 
 echo "✅ Installing Submodules..."
