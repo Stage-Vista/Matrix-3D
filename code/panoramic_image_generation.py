@@ -47,7 +47,7 @@ def main(args):
             torch_dtype=torch.bfloat16,
         ).to(device) 
         
-        lora_path="./checkpoints/flux_lora/pano_image_lora.safetensors"
+        lora_path="./checkpoints/flux_lora/text2panoimage_lora.safetensors"
         t2p_Pipeline.load_lora_weights(lora_path)
         t2p_Pipeline.enable_model_cpu_offload()
         t2p_Pipeline.enable_vae_tiling()
