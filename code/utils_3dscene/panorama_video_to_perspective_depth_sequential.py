@@ -120,8 +120,18 @@ def main(args):
             print(f"da3_output_dir={da3_output_dir}")
             depth_dir = os.path.join(da3_output_dir, "da3")
             cur_depth = cv2.imread(os.path.join(depth_dir, "depth.exr"), cv2.IMREAD_ANYCOLOR|cv2.IMREAD_ANYDEPTH)
-            cur_fgmask = cv2.imread(os.path.join(depth_dir, "mask.png"), cv2.IMREAD_UNCHANGED)[:,:] > 127
+            cur_fgmask = cv2.imread(os.path.join(depth_dir, "mask.png"), cv2.IMREAD_UNCHANGED)[:, :] > 127
             cur_seam_mask = ~depth_edge(cur_depth, rtol=0.05)
+
+            # DA3 depth is produced at its native resolution (e.g., 252x504),
+            # while the video / warped depth are at (height, width) (e.g.,
+            # 1080x2160). Resize DA3 depth and all associated masks to match
+            # the target resolution before optimization so broadcasting works.
+            dh, dw = cur_depth.shape[:2]
+            if (dh, dw) != (height, width):
+                cur_depth = cv2.resize(cur_depth, (width, height), interpolation=cv2.INTER_LINEAR)
+                cur_fgmask = cv2.resize(cur_fgmask.astype(np.uint8), (width, height), interpolation=cv2.INTER_NEAREST) > 0
+                cur_seam_mask = cv2.resize(cur_seam_mask.astype(np.uint8), (width, height), interpolation=cv2.INTER_NEAREST) > 0
             
             print(f"\n\nanchor depth: {anchor_depth.max()} {anchor_depth.min()}\n\n")
 
