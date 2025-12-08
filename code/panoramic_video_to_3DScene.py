@@ -20,11 +20,8 @@ def main(args):
 
     generated_video_path = os.path.join(generated_dir,"generated.mp4")
     if args.resolution == 720:
-        os.system(
-            f"cd code/VideoSR && python scripts/enhance_video_pipeline.py --version v2 --up_scale 1.5 --target_fps 24 --noise_aug 100 --solver_mode 'fast' --steps 15 --input_path {generated_video_path} --prompt '{prompt}' --save_dir {generated_dir} --suffix enhancement")
-        generated_video_path = os.path.join(generated_dir, "generated_resize_enhance.mp4")
-        width_following = 2160
-        height_following = 1080
+        width_following = 1440
+        height_following = 720
     else:
         os.system(f"cd code/VideoSR && python scripts/enhance_video_pipeline.py --version v2 --up_scale 2 --target_fps 20 --noise_aug 100 --solver_mode 'fast' --steps 15 --input_path {generated_video_path} --prompt \'{prompt}\' --save_dir {generated_dir} --suffix enhancement")
         generated_video_path = os.path.join(generated_dir,"generated_resize_enhance.mp4")
