@@ -29,7 +29,7 @@ cd ..
 
 echo "✅ Installing Python dependencies..."
 pip install plyfile decord ffmpeg trimesh pyrender xfuser diffusers open3d py360convert
-pip install "git+https://github.com/facebookresearch/pytorch3d.git@v0.7.7"
+pip install --no-build-isolation "git+https://github.com/facebookresearch/pytorch3d.git@v0.7.7"
 pip install peft easydict torchsde open-clip-torch==2.7.0 fairscale natsort
 pip install realesrgan #Version >3.7 and <3.9
 pip install flash-attn==2.7.4.post1 --no-build-isolation
