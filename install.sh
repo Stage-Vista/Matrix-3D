@@ -1,4 +1,4 @@
-apt install -y ffmpeg
+sudo apt install -y ffmpeg
 
 pip install ninja
 
